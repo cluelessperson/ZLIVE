@@ -21,17 +21,17 @@ export config="$base/CONFIGS/$1"
 export chroot="$build/chroot/"
 export setup_script="$build/setup_script"
 export iso="$build/$name"".iso"
-echo "BASE:         "$base
-echo "CONFIG:       "$config
-echo "BUILD:        "$build
-echo "CACHE:        "$cache
-echo "CHROOT:       "$chroot
-echo "SETUP_SCRIPT: "$setup_script
-echo "ISO:          "$iso
+echo "BASE:         $base"
+echo "CONFIG:       $config"
+echo "BUILD:        $build"
+echo "CACHE:        $cache"
+echo "CHROOT:       $chroot"
+echo "SETUP_SCRIPT: $setup_script"
+echo "ISO:          $iso"
 
 umount -lf $chroot/{proc,sys,dev/pts}
 
-rm -rf "$build"
+rm -rf "$build/binary" "$chroot"
 mkdir -p "$build"
 
 echo
@@ -57,7 +57,6 @@ echo
 
 echo "#Creating base_setup_script ..."
 cat <<EOF > "$build/setup_script"
-
 overwrite() {
     while read i; do
         echo -ne "\033[2K"
@@ -80,13 +79,14 @@ deb http://security.debian.org/ stable/updates main
 EOSF
 apt-get update -yqq
 apt-get install -yqq --no-install-recommends apt-utils
-apt-get install -yqq --no-install-recommends dialog dbus linux-image-amd64 live-boot syslinux nano ncdu
+apt-get install -yqq --no-install-recommends dialog dbus linux-image-amd64 live-boot syslinux nano
 dbus-uuidgen > /var/lib/dbus/machine-id
 
-echo "127.0.0.1 $name" >> /etc/hosts
+echo "127.0.0.1 $1" >> /etc/hosts
 echo "$1" > /etc/hostname
+echo "" > /etc/motd
 rm /var/lib/dbus/machine-id
-sed -i '/#kernel.printk = 3 4 1 3/s/^#//g' sysctl.conf
+sed -i '/#kernel.printk = 3 4 1 3/s/^#//g' /etc/sysctl.conf
 EOF
 
 cat "$config" >> "$build/setup_script"
@@ -98,13 +98,12 @@ apt-get clean -yqq
 rm -r /var/lib/apt/lists/*
 rm -rf /var/lib/dbus/machine-id
 rm -rf /tmp/*
-umount -lf /proc
-umount -lf /sys
-umount -lf /dev/pts
 exit
+
 EOF
 
 cat "$build/setup_script" | chroot "$chroot"
+umount -lf $chroot/{proc,sys,dev/pts}
 
 echo
 echo "#"
@@ -114,7 +113,7 @@ echo
 mkdir -p "$build/binary/"{live,isolinux}
 mksquashfs "$chroot" "$build/binary/live/filesystem.squashfs" \
     -e boot \
-    -b 1048576 \
+    -b 4096 \
     -comp xz \
     -Xdict-size 100%
 echo "#make bootable..."
@@ -124,7 +123,7 @@ cp /usr/lib/syslinux/modules/bios/ldlinux.c32 "$build/binary/isolinux/"
 cp "/usr/lib/ISOLINUX/isolinux.bin" "$build/binary/isolinux/"
 
 cat <<EOF > "$build/binary/isolinux/isolinux.cfg"
-timeout 100
+#timeout 100
 default linux
 label linux
     kernel /live/vmlinuz
