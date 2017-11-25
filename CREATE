@@ -43,7 +43,7 @@ echo "#"
 echo "#     Checking/Installing prerequisites..."
 echo "#"
 apt-get update -yqq | overwrite
-apt-get install -yqq --no-install-recommends debootstrap live-build syslinux squashfs-tools | overwrite
+apt-get install -yqq --no-install-recommends debootstrap live-build syslinux isolinux syslinux-common squashfs-tools xorriso | overwrite
 
 echo
 echo "#"
