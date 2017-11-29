@@ -5,11 +5,12 @@ apt-get -yqq --no-install-recommends install usbmount ntfs-3g
 apt-get -yqq --no-install-recommends install xserver-xorg xinit xterm
 apt-get -yqq --no-install-recommends install build-essential
 apt-get -yqq --no-install-recommends install python3-minimal python3-dev python3-pip python3-pyqt5
+apt-get -yqq --no-install-recommends install haveged
 pip3 install --upgrade pip
 pip3 install --upgrade setuptools
 pip3 install wheel
 pip3 install trezor
-pip3 install https://download.electrum.org/3.0/Electrum-3.0.2.tar.gz
+pip3 install https://download.electrum.org/3.0.2/Electrum-3.0.2.tar.gz
 apt-get -yqq --no-install-recommends install cython libusb-1.0-0-dev libudev-dev
 apt-get -yqq autoremove
 echo "root:root:::::" | newusers

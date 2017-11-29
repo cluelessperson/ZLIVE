@@ -102,6 +102,7 @@ apt-get clean -yqq
 rm -r /var/lib/apt/lists/*
 rm -rf /var/lib/dbus/machine-id
 rm -rf /tmp/*
+rm -rf /var/lib/systemd/random-seed
 exit
 
 EOF
@@ -145,3 +146,4 @@ xorriso \
     "$build/binary"
 
 du -sh "$build/$name.iso"
+sha512sum "$build/$name.iso" > "$build/$name.sha512sum"
